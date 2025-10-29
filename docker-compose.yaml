@@ -1,0 +1,12 @@
+version: '1'
+
+services:
+  postgres:
+    image: 'postgres:13'
+    container_name: 'web-service'
+    ports:
+      - 5432:5432
+    environment:
+      - 'POSTGRES_USER=pg'
+      - 'POSTGRES_HOST_AUTH_METHOD=trust'
+      - 'POSTGRES_DB=web_service'

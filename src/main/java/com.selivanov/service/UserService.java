@@ -1,7 +1,8 @@
-package com.selivanov.sevice;
+package com.selivanov.service;
 
 import com.selivanov.dto.UserDto;
 import com.selivanov.entity.User;
+import com.selivanov.exception.NoSuchEntityException;
 import com.selivanov.mapper.UserMapper;
 import com.selivanov.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserUtil userUtil;
 
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
@@ -24,21 +26,29 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserDto getUserById(int id) {
-        User user = userRepository.findById(id).orElseThrow(); //
+        User user = userRepository
+                .findById(id)
+                .orElseThrow(() -> new NoSuchEntityException("User with id " + id + " not found"));
         return userMapper.toUserDto(user);
     }
 
     @Transactional
     public void saveUser(UserDto userDto) {
-        User user = new User();
-        user.setName(userDto.name());
-        user.setLastname(userDto.lastname());
+        Integer age = userUtil.getAgeFromBirthday(userDto.birthday());
+
+        User user = userMapper.toEntity(userDto);
+        user.setAge(age);
+        user.setEmail(userUtil.getEmail(userDto.email()));
+        user.setAgeCategory(userUtil.getAgeCategory(age));
+
         userRepository.save(user);
     }
 
     @Transactional
     public void updateUser(Integer id, UserDto userDto) {
-        User updatableUser = userRepository.findById(id).orElseThrow();
+        User updatableUser = userRepository
+                .findById(id)
+                .orElseThrow(() -> new NoSuchEntityException("User with id " + id + " not found"));
         userMapper.updateUser(updatableUser, userDto);
         userRepository.save(updatableUser);
     }
@@ -47,5 +57,4 @@ public class UserService {
     public void deleteUser(Integer id) {
         userRepository.deleteById(id);
     }
-
 }

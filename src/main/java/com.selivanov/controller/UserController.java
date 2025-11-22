@@ -1,7 +1,8 @@
 package com.selivanov.controller;
 
 import com.selivanov.dto.UserDto;
-import com.selivanov.sevice.UserService;
+import com.selivanov.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<Void> createUser(@Valid @RequestBody UserDto userDto) {
         userService.saveUser(userDto);
         return ResponseEntity.ok().build();
     }
